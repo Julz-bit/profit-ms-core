@@ -1,25 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { PriorityStatus, Status, PaymentStatus } from "@prisma/client";
-import { Transform } from "class-transformer";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+import { Transform, Type } from "class-transformer";
+import { ArrayMinSize, IsArray, IsNotEmpty, ValidateNested } from "class-validator";
+import { ScopeDto } from "./scope.dto";
 
-type ScopeType = {
-    name: string;
-    startDate: string;
-    endDate: string;
-    priority: PriorityStatus;
-    status: Status;
-    fee: number;
-    payment: PaymentStatus;
-}
 
 export class CreateScopeDto {
-    @IsOptional()
     @ApiProperty()
-    scopes: ScopeType[]
+    @IsArray()
+    @ValidateNested({ each: true })
+    @ArrayMinSize(1)
+    @Type(() => ScopeDto)
+    scopes: ScopeDto[];
 
+    @ApiProperty()
     @IsNotEmpty()
     @Transform(({ value }) => parseInt(value))
-    @ApiProperty()
     projectId: number;
 }

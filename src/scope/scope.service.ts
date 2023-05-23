@@ -16,18 +16,23 @@ export class ScopeService {
     for (let i = 0; i < scopes.length; i++) {
       const { startDate, endDate, ...rest } = scopes[i];
 
-      const transaction = await this.prisma.scope.create({
-        data: {
-          ...rest,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          project: {
-            connect: { id: createScopeDto.projectId }
+      try {
+        await this.prisma.scope.create({
+          data: {
+            ...rest,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            project: {
+              connect: { id: createScopeDto.projectId }
+            }
           }
-        }
-      });
+        });
 
-      transaction ? success += 1 : failed += 1;
+        success += 1;
+      } catch (err) {
+        failed += 1;
+        console.log(err);
+      }
     }
 
     return { success: success, failed: failed };
